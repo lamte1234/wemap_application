@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
 import 'dart:async';
@@ -48,24 +50,24 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
 
-  WEMAP.Circle circle;
+  WEMAP.LatLng _startPoint;
+  WEMAP.LatLng _endPoint;
+
+  List<WEMAP.LatLng> line = [];
 
   static final WEMAP.CameraPosition initialLocation = WEMAP.CameraPosition(
-      target: WEMAP.LatLng(21.028511, 105.804817), zoom: 14.00);
+      target: WEMAP.LatLng(21.028511, 105.804817), zoom: 16.00);
 
-  // void updateCircle(LocationData newData) {
-  //   WEMAP.LatLng latlng = WEMAP.LatLng(newData.latitude, newData.longitude);
-  //   circle = WEMAP.Circle(
-  //       "circle_location",
-  //       WEMAP.CircleOptions(
-  //         circleRadius: newData.accuracy,
-  //         circleColor: "lime",
-  //         circleStrokeColor: "lightGreen",
-  //         geometry: latlng,
-  //       ));
-  // }
+  void _onMapCreated(WEMAP.WeMapController controller) async {
+    _controller = controller;
+    line = [];
 
-  void _getLocation() async {
+    var location = await _locationTracker.getLocation();
+    _startPoint = WEMAP.LatLng(location.latitude, location.longitude);
+    line.add(WEMAP.LatLng(location.latitude, location.longitude));
+  }
+
+  void getLocation() async {
     try {
       var location = await _locationTracker.getLocation();
 
@@ -81,7 +83,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   bearing: 0.0,
                   target: WEMAP.LatLng(newData.latitude, newData.longitude),
                   tilt: 0,
-                  zoom: 14.00)));
+                  zoom: 16.00)));
+          line.add(WEMAP.LatLng(newData.latitude, newData.longitude));
+          _controller.addLine(WEMAP.LineOptions(
+            geometry: line,
+            lineColor: "#ff0000",
+            lineWidth: 8.0,
+            lineOpacity: 1,
+          ));
         }
       });
     } on PlatformException catch (e) {
@@ -117,14 +126,12 @@ class _MyHomePageState extends State<MyHomePage> {
         styleString: _styleString,
         initialCameraPosition: initialLocation,
         myLocationEnabled: true,
-        myLocationTrackingMode: WEMAP.MyLocationTrackingMode.TrackingGPS,
-        myLocationRenderMode: WEMAP.MyLocationRenderMode.GPS,
-        onMapCreated: (WEMAP.WeMapController controller) {
-          _controller = controller;
-        },
+        // myLocationTrackingMode: WEMAP.MyLocationTrackingMode.TrackingGPS,
+        // myLocationRenderMode: WEMAP.MyLocationRenderMode.GPS,
+        onMapCreated: _onMapCreated,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _getLocation,
+        onPressed: getLocation,
         tooltip: 'getLocation',
         child: Icon(Icons.location_searching),
       ), // This trailing comma makes auto-formatting nicer for build methods.
