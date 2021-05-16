@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' show cos, sqrt, asin;
 
 import 'package:flutter/material.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
@@ -49,27 +50,74 @@ class _MyHomePageState extends State<MyHomePage> {
   String _styleString = WEMAP.WeMapStyles.WEMAP_VECTOR_STYLE;
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
+  Timer _timer;
 
   WEMAP.LatLng _startPoint;
   WEMAP.LatLng _endPoint;
 
-  List<WEMAP.LatLng> line = [];
+  double _totalDistance = 0;
+  double _totalTime = 0;
 
-  static final WEMAP.CameraPosition initialLocation = WEMAP.CameraPosition(
+  bool isRunning = false;
+
+  List<WEMAP.LatLng> _line = [];
+
+  WEMAP.CameraPosition _initialLocation = WEMAP.CameraPosition(
       target: WEMAP.LatLng(21.028511, 105.804817), zoom: 16.00);
 
   void _onMapCreated(WEMAP.WeMapController controller) async {
     _controller = controller;
-    line = [];
+    _line = [];
 
     var location = await _locationTracker.getLocation();
-    _startPoint = WEMAP.LatLng(location.latitude, location.longitude);
-    line.add(WEMAP.LatLng(location.latitude, location.longitude));
+    _initialLocation = WEMAP.CameraPosition(
+        target: WEMAP.LatLng(location.latitude, location.longitude),
+        zoom: 16.0);
+    _line.add(WEMAP.LatLng(location.latitude, location.longitude));
   }
 
-  void getLocation() async {
+  double _distanceBetween(WEMAP.LatLng point1, WEMAP.LatLng point2) {
+    var p = 0.017453292519943295;
+    var a = 0.5 -
+        cos((point2.latitude - point1.latitude) * p) / 2 +
+        cos(point1.latitude * p) *
+            cos(point2.latitude * p) *
+            (1 - cos((point2.longitude - point1.longitude) * p)) /
+            2;
+    return 12742 * asin(sqrt(a));
+  }
+
+  void _totalRunningDistance(List<WEMAP.LatLng> pathPoint) {
+    _totalDistance = 0;
+    for (var i = 0; i < pathPoint.length - 1; ++i) {
+      _totalDistance += _distanceBetween(pathPoint[i], pathPoint[i + 1]);
+    }
+  }
+
+  void _startTimer() {
+    _totalTime = 0;
+    if (_timer != null) {
+      _timer.cancel();
+    }
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (isRunning) {
+        setState(() {
+          ++_totalTime;
+        });
+      } else {
+        _timer.cancel();
+      }
+    });
+  }
+
+  void _getLocation() async {
     try {
       var location = await _locationTracker.getLocation();
+
+      setState(() {
+        isRunning = true;
+      });
 
       if (_locationSubscription != null) {
         _locationSubscription.cancel();
@@ -84,13 +132,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   target: WEMAP.LatLng(newData.latitude, newData.longitude),
                   tilt: 0,
                   zoom: 16.00)));
-          line.add(WEMAP.LatLng(newData.latitude, newData.longitude));
+          _line.add(WEMAP.LatLng(newData.latitude, newData.longitude));
           _controller.addLine(WEMAP.LineOptions(
-            geometry: line,
+            geometry: _line,
             lineColor: "#ff0000",
-            lineWidth: 8.0,
+            lineWidth: 7.5,
             lineOpacity: 1,
           ));
+          _totalRunningDistance(_line);
+          debugPrint(_totalDistance.toString());
         }
       });
     } on PlatformException catch (e) {
@@ -104,6 +154,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     if (_locationSubscription != null) {
       _locationSubscription.cancel();
+    }
+    if (_timer != null) {
+      _timer.cancel();
     }
     super.dispose();
   }
@@ -124,16 +177,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: WEMAP.WeMap(
         styleString: _styleString,
-        initialCameraPosition: initialLocation,
+        initialCameraPosition: _initialLocation,
         myLocationEnabled: true,
         // myLocationTrackingMode: WEMAP.MyLocationTrackingMode.TrackingGPS,
         // myLocationRenderMode: WEMAP.MyLocationRenderMode.GPS,
         onMapCreated: _onMapCreated,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: getLocation,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _getLocation,
+        foregroundColor: Colors.white,
         tooltip: 'getLocation',
-        child: Icon(Icons.location_searching),
+        icon: Icon(Icons.run_circle),
+        label: Text('START'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
