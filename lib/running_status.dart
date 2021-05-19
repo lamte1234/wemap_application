@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:core';
 
+import 'package:wemap_application/distance_data.dart';
+
 class RunningStatus extends StatefulWidget {
-  RunningStatus(this.distance);
+  RunningStatus({ this.distance });
 
   double distance;
 
@@ -50,12 +53,13 @@ class _RunningStatusState extends State<RunningStatus> {
 
   @override
   Widget build(BuildContext context) {
+    var distance = Provider.of<Distance>(context);
     return Container(
       child: Row(
         children: <Widget>[
           Expanded(
               child: Text(
-            _distance.toStringAsFixed(2) + "km",
+            distance.distance.toStringAsFixed(2) + "km",
             style: TextStyle(color: Colors.white),
           )),
           Expanded(
