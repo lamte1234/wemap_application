@@ -8,6 +8,8 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 
+import 'running_status.dart';
+
 void main() {
   WEMAP.Configuration.setWeMapKey('GqfwrZUEfxbwbnQUhtBMFivEysYIxelQ');
   runApp(MyApp());
@@ -50,15 +52,10 @@ class _MyHomePageState extends State<MyHomePage> {
   String _styleString = WEMAP.WeMapStyles.WEMAP_VECTOR_STYLE;
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
-  Timer _timer;
-
-  WEMAP.LatLng _startPoint;
-  WEMAP.LatLng _endPoint;
 
   double _totalDistance = 0;
-  double _totalTime = 0;
 
-  bool isRunning = false;
+  bool _isRunning = false;
 
   List<WEMAP.LatLng> _line = [];
 
@@ -94,29 +91,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _startTimer() {
-    _totalTime = 0;
-    if (_timer != null) {
-      _timer.cancel();
-    }
-
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (isRunning) {
-        setState(() {
-          ++_totalTime;
-        });
-      } else {
-        _timer.cancel();
-      }
-    });
-  }
-
-  void _getLocation() async {
+  void _startRunning() async {
     try {
       var location = await _locationTracker.getLocation();
 
       setState(() {
-        isRunning = true;
+        _isRunning = true;
       });
 
       if (_locationSubscription != null) {
@@ -140,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
             lineOpacity: 1,
           ));
           _totalRunningDistance(_line);
-          debugPrint(_totalDistance.toString());
         }
       });
     } on PlatformException catch (e) {
@@ -150,13 +129,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _stopRunning() {
+    setState(() {
+      _isRunning = false;
+      _totalDistance = 0;
+      _line = [];
+    });
+
+    // do something with data, save the running record
+  }
+
   @override
   void dispose() {
     if (_locationSubscription != null) {
       _locationSubscription.cancel();
-    }
-    if (_timer != null) {
-      _timer.cancel();
     }
     super.dispose();
   }
@@ -170,26 +156,40 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+      body: Container(
+        child: Column(
+          children: <Widget>[
+            _isRunning
+                ? SafeArea(child: RunningStatus(_totalDistance))
+                : Container(),
+            Expanded(
+              child: WEMAP.WeMap(
+                styleString: _styleString,
+                initialCameraPosition: _initialLocation,
+                myLocationEnabled: true,
+                // myLocationTrackingMode: WEMAP.MyLocationTrackingMode.TrackingGPS,
+                // myLocationRenderMode: WEMAP.MyLocationRenderMode.GPS,
+                onMapCreated: _onMapCreated,
+              ),
+            )
+          ],
+        ),
       ),
-      body: WEMAP.WeMap(
-        styleString: _styleString,
-        initialCameraPosition: _initialLocation,
-        myLocationEnabled: true,
-        // myLocationTrackingMode: WEMAP.MyLocationTrackingMode.TrackingGPS,
-        // myLocationRenderMode: WEMAP.MyLocationRenderMode.GPS,
-        onMapCreated: _onMapCreated,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _getLocation,
-        foregroundColor: Colors.white,
-        tooltip: 'getLocation',
-        icon: Icon(Icons.run_circle),
-        label: Text('START'),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: _isRunning == false
+          ? FloatingActionButton.extended(
+              onPressed: _startRunning,
+              foregroundColor: Colors.white,
+              tooltip: 'startRunning',
+              icon: Icon(Icons.run_circle),
+              label: Text('START'))
+          : FloatingActionButton.extended(
+              onPressed: _stopRunning,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              tooltip: 'stopRunning',
+              icon: Icon(Icons.run_circle),
+              label: Text('STOP'),
+            ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
