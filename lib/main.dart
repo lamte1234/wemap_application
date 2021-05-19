@@ -4,6 +4,7 @@ import 'package:wemapgl/wemapgl.dart' as WEMAP;
 
 import './distance_data.dart';
 import './my_home_page.dart';
+import 'progress.dart';
 
 void main() {
   WEMAP.Configuration.setWeMapKey('GqfwrZUEfxbwbnQUhtBMFivEysYIxelQ');
@@ -19,7 +20,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
       ),
-      home: DataProvider(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => DataProvider(),
+        '/progress': (context) => Progress(),
+      },
     );
   }
 }
