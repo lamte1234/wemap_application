@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:math' show cos, sqrt, asin;
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
@@ -36,6 +33,3 @@ class DataProvider extends StatelessWidget {
     );
   }
 }
-
-
-

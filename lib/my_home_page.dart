@@ -109,7 +109,10 @@ class _MyHomePageState extends State<MyHomePage> {
       _line = [];
     });
 
-    // do something with data, save the running record
+    if (_locationSubscription != null) {
+      _locationSubscription.cancel();
+    }
+    // remove line on map
   }
 
   @override
