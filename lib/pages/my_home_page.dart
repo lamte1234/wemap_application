@@ -23,6 +23,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _selectedPageIndex = 0;
+  final List<String> _routes = ['/', '/progress'];
+
   WEMAP.WeMapController _controller;
   String _styleString = WEMAP.WeMapStyles.WEMAP_VECTOR_STYLE;
   StreamSubscription _locationSubscription;
@@ -37,6 +40,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   WEMAP.CameraPosition _initialLocation = WEMAP.CameraPosition(
       target: WEMAP.LatLng(21.028511, 105.804817), zoom: 16.00);
+
+  void _onNavigationBarItemTapped(int index) {
+    setState(() {
+      _selectedPageIndex = index;
+    });
+    Navigator.popAndPushNamed(context, _routes[_selectedPageIndex]);
+  }
 
   void _onMapCreated(WEMAP.WeMapController controller) async {
     _controller = controller;
@@ -125,6 +135,11 @@ class _MyHomePageState extends State<MyHomePage> {
       _line = [];
     });
     Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPage()));
+
+    if (_locationSubscription != null) {
+      _locationSubscription.cancel();
+    }
+    // remove line on map
   }
 
   @override
@@ -160,6 +175,20 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.run_circle),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Progress',
+          )
+        ],
+        onTap: _onNavigationBarItemTapped,
+        currentIndex: _selectedPageIndex,
       ),
       floatingActionButton: _isRunning == false
           ? FloatingActionButton.extended(

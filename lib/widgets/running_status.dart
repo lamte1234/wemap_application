@@ -12,7 +12,6 @@ class RunningStatus extends StatefulWidget {
 }
 
 class _RunningStatusState extends State<RunningStatus> {
-  double _distance = 0;
   double _totalTime = 0;
   Timer _timer;
 
@@ -31,6 +30,7 @@ class _RunningStatusState extends State<RunningStatus> {
     super.initState();
   }
 
+  // optional can be removed
   void stopTimer() {
     // save running record
     _totalTime = 0;
@@ -42,6 +42,7 @@ class _RunningStatusState extends State<RunningStatus> {
   @override
   void dispose() {
     _totalTime = 0;
+    // handle data when the widget is disposed
     if (_timer != null) {
       _timer.cancel();
     }
@@ -55,23 +56,29 @@ class _RunningStatusState extends State<RunningStatus> {
       child: Row(
         children: <Widget>[
           Expanded(
-              child: Text(
-            distance.distance.toStringAsFixed(2) + "km",
-            style: TextStyle(color: Colors.white),
-          )),
+              child: distance.distance == null
+                  ? Text(
+                      "0.00km",
+                      style: TextStyle(color: Colors.white),
+                    )
+                  : Text(
+                      distance.distance.toStringAsFixed(2) + "km",
+                      style: TextStyle(color: Colors.white),
+                    )),
           Expanded(
               child: Text(
             _totalTime.toString() + "secs",
             style: TextStyle(color: Colors.white),
           )),
           Expanded(
-              child: _totalTime == 0
+              child: _totalTime == 0 || distance.distance == null
                   ? Text(
-                      "0.0 km/h",
+                      "0.0km/h",
                       style: TextStyle(color: Colors.white),
                     )
                   : Text(
-                      (_distance / _totalTime * 3600).toStringAsFixed(2) +
+                      (distance.distance / _totalTime * 3600)
+                              .toStringAsFixed(2) +
                           "km/h",
                       style: TextStyle(color: Colors.white),
                     )),
