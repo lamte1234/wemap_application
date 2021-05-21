@@ -3,12 +3,15 @@ import 'dart:math' show cos, sqrt, asin;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wemap_application/database/history_database.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
 
-import './distance_data.dart';
-import './my_home_page.dart';
+import './data_models/distance_data.dart';
+import 'pages/my_home_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HistoryDatabase.instance.init();
   WEMAP.Configuration.setWeMapKey('GqfwrZUEfxbwbnQUhtBMFivEysYIxelQ');
   runApp(MyApp());
 }

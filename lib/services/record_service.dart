@@ -1,0 +1,44 @@
+import 'package:sqflite/sqflite.dart';
+import 'package:wemap_application/database/history_database.dart';
+
+import '../models/record_model.dart';
+
+class RecordService {
+  static const TABLE_NAME = 'records';
+  static const CREATE_TABLE_QUERY = '''
+    CREATE TABLE $TABLE_NAME (
+      id INTEGER PRIMARY KEY NOT NULL,
+      distance DECIMAL(15,2) NOT NULL,
+      totalTime DECIMAL(15,2) NOT NULL,
+      speed DECIMAL(15,2) NOT NULL,
+      dateTime TEXT NOT NULL
+    )
+  ''';
+
+  static const DROP_TABLE_QUERY = '''
+    DROP TABLE IF EXISTS $TABLE_NAME
+  ''';
+
+  Future<void> insertRecord(record) async {
+    final Database db = HistoryDatabase.instance.database;
+    await db.insert(TABLE_NAME, record.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<void> deleteRecord(int recordId) async {
+    final Database db = HistoryDatabase.instance.database;
+    await db.delete(TABLE_NAME, where: 'id = ?', whereArgs: [recordId]);
+  }
+
+  Future<void> updateRecord(record) async {
+    final Database db = HistoryDatabase.instance.database;
+    await db.update(TABLE_NAME, record.toMap(), where: 'id = ?', whereArgs: [record.id]);
+  }
+
+  Future<List<Record>> getAllRecords() async {
+    final Database db = HistoryDatabase.instance.database;
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_NAME);
+    return List.generate(maps.length, (index) {
+      return Record.fromMap(maps[index]);
+    });
+  }
+}

@@ -3,13 +3,10 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:core';
 
-import 'package:wemap_application/distance_data.dart';
+import '../data_models/distance_data.dart';
 
 class RunningStatus extends StatefulWidget {
-  RunningStatus({ this.distance });
-
-  double distance;
-
+  RunningStatus();
   @override
   _RunningStatusState createState() => _RunningStatusState();
 }
@@ -21,7 +18,6 @@ class _RunningStatusState extends State<RunningStatus> {
 
   void startTimer() {
     _totalTime = 0;
-
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _totalTime++;
@@ -32,6 +28,7 @@ class _RunningStatusState extends State<RunningStatus> {
   @override
   void initState() {
     startTimer();
+    super.initState();
   }
 
   void stopTimer() {

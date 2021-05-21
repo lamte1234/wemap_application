@@ -1,14 +1,18 @@
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:flutter/material.dart';
-import 'package:wemap_application/distance_data.dart';
+import 'package:wemap_application/models/record_model.dart';
+import 'package:wemap_application/pages/history_page.dart';
+import 'package:wemap_application/services/record_service.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
-import 'running_status.dart';
+import '../widgets/running_status.dart';
+import '../data_models/distance_data.dart';
+
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -23,6 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _styleString = WEMAP.WeMapStyles.WEMAP_VECTOR_STYLE;
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
+  RecordService _recordService = RecordService();
 
   double _totalDistance = 0;
 
@@ -102,14 +107,24 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _stopRunning() {
+  void _stopRunning() async {
+    double newTotalDistance = Provider.of<Distance>(context, listen: false).distance;
+    Record newRecord = Record(
+      id: 1,
+      distance: newTotalDistance,
+      totalTime: 10,
+      speed: newTotalDistance/10,
+      dateTime: DateTime.now().toString(),
+    );
+    // do something with data, save the running record
+    await _recordService.insertRecord(newRecord);
+    // routing
     setState(() {
       _isRunning = false;
       _totalDistance = 0;
       _line = [];
     });
-
-    // do something with data, save the running record
+    Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPage()));
   }
 
   @override
@@ -128,17 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    var distance = Provider.of<Distance>(context);
     return Scaffold(
       body: Container(
         child: Column(
           children: <Widget>[
-            _isRunning
-                ? SafeArea(
-                    child: RunningStatus(
-                    distance: distance.distance,
-                  ))
-                : Container(),
+            _isRunning ? SafeArea(child: RunningStatus()) : Container(),
             Expanded(
               child: WEMAP.WeMap(
                 styleString: _styleString,
