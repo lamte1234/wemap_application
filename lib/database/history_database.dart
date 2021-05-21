@@ -3,8 +3,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wemap_application/services/record_service.dart';
 
 class HistoryDatabase {
-  static const DB_NAME = 'db.history';
-  static const DB_VERSION = 1;
+  static const DB_NAME = 'history.db';
+  static const DB_VERSION = 2;
   static Database _database;
 
   HistoryDatabase._internal();
@@ -16,12 +16,12 @@ class HistoryDatabase {
   static const migrationScripts = [RecordService.CREATE_TABLE_QUERY];
 
   init() async {
+    print(join(await getDatabasesPath(), DB_NAME));
     _database = await openDatabase(
-      join(await getDatabasesPath(), DB_NAME),
+      join(await getDatabasesPath(), DB_NAME), version: DB_VERSION,
       onCreate: (db, version) {
         initScripts.forEach((script) async => await db.execute(script));
       },
-      version: DB_VERSION,
       onUpgrade: (db, oldVersion, newVersion) {
         migrationScripts.forEach((script) async => await db.execute(script));
       }

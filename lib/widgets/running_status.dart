@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:core';
 
-import '../data_models/distance_data.dart';
+import '../data_models/running_data.dart';
 
 class RunningStatus extends StatefulWidget {
   RunningStatus();
@@ -51,7 +51,7 @@ class _RunningStatusState extends State<RunningStatus> {
 
   @override
   Widget build(BuildContext context) {
-    var distance = Provider.of<Distance>(context);
+    var distance = Provider.of<RunningData>(context);
     return Container(
       child: Row(
         children: <Widget>[

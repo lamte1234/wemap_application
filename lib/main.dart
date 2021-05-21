@@ -3,9 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:wemap_application/database/history_database.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
 
-import './data_models/distance_data.dart';
+import './data_models/running_data.dart';
+import 'package:flutter/widgets.dart';
+import 'models/record_model.dart';
 import 'pages/my_home_page.dart';
-import 'progress.dart';
+import 'pages/progress.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HistoryDatabase.instance.init();
@@ -34,8 +37,8 @@ class MyApp extends StatelessWidget {
 class DataProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<Distance>(
-      create: (context) => Distance(),
+    return ChangeNotifierProvider<RunningData>(
+      create: (context) => RunningData(),
       child: MyHomePage(title: 'Tracking Demo'),
     );
   }

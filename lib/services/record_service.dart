@@ -8,9 +8,9 @@ class RecordService {
   static const CREATE_TABLE_QUERY = '''
     CREATE TABLE $TABLE_NAME (
       id INTEGER PRIMARY KEY NOT NULL,
-      distance DECIMAL(15,2) NOT NULL,
-      totalTime DECIMAL(15,2) NOT NULL,
-      speed DECIMAL(15,2) NOT NULL,
+      distance DOUBLE NOT NULL,
+      totalTime DOUBLE NOT NULL,
+      speed DOUBLE NOT NULL,
       dateTime TEXT NOT NULL
     )
   ''';
@@ -38,7 +38,13 @@ class RecordService {
     final Database db = HistoryDatabase.instance.database;
     final List<Map<String, dynamic>> maps = await db.query(TABLE_NAME);
     return List.generate(maps.length, (index) {
-      return Record.fromMap(maps[index]);
+      return Record(
+        id: maps[index]["id"],
+        distance: maps[index]["distance"],
+        totalTime: maps[index]["totalTime"],
+        speed: maps[index]["speed"],
+        dateTime: maps[index]["dateTime"],
+      );
     });
   }
 }

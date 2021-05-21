@@ -2,7 +2,6 @@ import 'dart:math' show cos, sqrt, asin;
 
 import 'package:flutter/material.dart';
 import 'package:wemap_application/models/record_model.dart';
-import 'package:wemap_application/pages/history_page.dart';
 import 'package:wemap_application/services/record_service.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
 import 'dart:async';
@@ -11,7 +10,7 @@ import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/running_status.dart';
-import '../data_models/distance_data.dart';
+import '../data_models/running_data.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -74,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _totalDistance = 0;
     for (var i = 0; i < pathPoint.length - 1; ++i) {
       _totalDistance += _distanceBetween(pathPoint[i], pathPoint[i + 1]);
-      Provider.of<Distance>(context, listen: false)
+      Provider.of<RunningData>(context, listen: false)
           .changeDistance(_totalDistance);
     }
   }
@@ -118,9 +117,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _stopRunning() async {
-    double newTotalDistance = Provider.of<Distance>(context, listen: false).distance;
+    double newTotalDistance = Provider.of<RunningData>(context, listen: false).distance;
     Record newRecord = Record(
-      id: 1,
+      id: 2,
       distance: newTotalDistance,
       totalTime: 10,
       speed: newTotalDistance/10,
@@ -134,8 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _totalDistance = 0;
       _line = [];
     });
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPage()));
-
+    Navigator.popAndPushNamed(context, '/progress');
     if (_locationSubscription != null) {
       _locationSubscription.cancel();
     }
