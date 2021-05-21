@@ -60,27 +60,32 @@ class _RunningStatusState extends State<RunningStatus> {
                   ? Text(
                       "0.00km",
                       style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
                     )
                   : Text(
                       distance.distance.toStringAsFixed(2) + "km",
                       style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
                     )),
           Expanded(
               child: Text(
             _totalTime.toString() + "secs",
             style: TextStyle(color: Colors.white),
+            textAlign: TextAlign.center,
           )),
           Expanded(
               child: _totalTime == 0 || distance.distance == null
                   ? Text(
                       "0.0km/h",
                       style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
                     )
                   : Text(
                       (distance.distance / _totalTime * 3600)
                               .toStringAsFixed(2) +
                           "km/h",
                       style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
                     )),
         ],
       ),

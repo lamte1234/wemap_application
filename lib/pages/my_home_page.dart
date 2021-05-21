@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import '../widgets/running_status.dart';
 import '../data_models/running_data.dart';
 
-
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
@@ -52,10 +51,16 @@ class _MyHomePageState extends State<MyHomePage> {
     _line = [];
 
     var location = await _locationTracker.getLocation();
-    _initialLocation = WEMAP.CameraPosition(
-        target: WEMAP.LatLng(location.latitude, location.longitude),
-        zoom: 16.0);
-    _line.add(WEMAP.LatLng(location.latitude, location.longitude));
+
+    // init camera with current location.
+    if (_controller != null) {
+      _controller.animateCamera(WEMAP.CameraUpdate.newCameraPosition(
+          new WEMAP.CameraPosition(
+              bearing: 0.0,
+              target: WEMAP.LatLng(location.latitude, location.longitude),
+              tilt: 0,
+              zoom: 16.0)));
+    }
   }
 
   double _distanceBetween(WEMAP.LatLng point1, WEMAP.LatLng point2) {
@@ -98,12 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   bearing: 0.0,
                   target: WEMAP.LatLng(newData.latitude, newData.longitude),
                   tilt: 0,
-                  zoom: 16.00)));
+                  zoom: 16.0)));
           _line.add(WEMAP.LatLng(newData.latitude, newData.longitude));
           _controller.addLine(WEMAP.LineOptions(
             geometry: _line,
             lineColor: "#ff0000",
-            lineWidth: 7.5,
+            lineWidth: 6.0,
             lineOpacity: 1,
           ));
           _totalRunningDistance(_line);
@@ -117,12 +122,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _stopRunning() async {
-    double newTotalDistance = Provider.of<RunningData>(context, listen: false).distance;
+    double newTotalDistance =
+        Provider.of<RunningData>(context, listen: false).distance;
     Record newRecord = Record(
       id: 2,
       distance: newTotalDistance,
       totalTime: 10,
-      speed: newTotalDistance/10,
+      speed: newTotalDistance / 10,
       dateTime: DateTime.now().toString(),
     );
     // do something with data, save the running record
