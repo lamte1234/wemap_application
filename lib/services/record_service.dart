@@ -19,6 +19,18 @@ class RecordService {
     DROP TABLE IF EXISTS $TABLE_NAME
   ''';
 
+  static const LAST_INSERT_ID_QUERY = '''
+    SELECT max(id) as last_insert_id FROM $TABLE_NAME
+  ''';
+
+  static int lastInsertId;
+
+  Future<void> getLastInsertRowId() async {
+    final Database db = HistoryDatabase.instance.database;
+    var queryResult = await db.rawQuery(LAST_INSERT_ID_QUERY);
+    lastInsertId = queryResult.first["last_insert_id"];
+  }
+
   Future<void> insertRecord(record) async {
     final Database db = HistoryDatabase.instance.database;
     await db.insert(TABLE_NAME, record.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);

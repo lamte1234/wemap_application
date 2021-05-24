@@ -31,7 +31,6 @@ class _MyHomePageState extends State<MyHomePage> {
   RecordService _recordService = RecordService();
 
   double _totalDistance = 0;
-
   bool _isRunning = false;
 
   List<WEMAP.LatLng> _line = [];
@@ -83,10 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _startRunning() async {
+  void _startRunning(RunningData provider) async {
     try {
       var location = await _locationTracker.getLocation();
-
+      provider.startTimer();
       setState(() {
         _isRunning = true;
       });
@@ -121,18 +120,22 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _stopRunning() async {
+  void _stopRunning(RunningData provider) async {
     double newTotalDistance =
-        Provider.of<RunningData>(context, listen: false).distance;
+        provider.distance;
+    provider.stopTimer();
+    double newTotalTime = provider.totalTime;
+    await _recordService.getLastInsertRowId();
     Record newRecord = Record(
-      id: 2,
+      id: RecordService.lastInsertId + 1,
       distance: newTotalDistance,
-      totalTime: 10,
-      speed: newTotalDistance / 10,
+      totalTime: newTotalTime,
+      speed: newTotalDistance / newTotalTime * 3600,
       dateTime: DateTime.now().toString(),
     );
     // do something with data, save the running record
     await _recordService.insertRecord(newRecord);
+
     // routing
     setState(() {
       _isRunning = false;
@@ -162,6 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    var provider = Provider.of<RunningData>(context);
     return Scaffold(
       body: Container(
         child: Column(
@@ -196,13 +200,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: _isRunning == false
           ? FloatingActionButton.extended(
-              onPressed: _startRunning,
+              onPressed: () => _startRunning(provider),
               foregroundColor: Colors.white,
               tooltip: 'startRunning',
               icon: Icon(Icons.run_circle),
               label: Text('START'))
           : FloatingActionButton.extended(
-              onPressed: _stopRunning,
+              onPressed: () => _stopRunning(provider),
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               tooltip: 'stopRunning',

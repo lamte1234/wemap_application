@@ -5,7 +5,6 @@ import 'package:wemapgl/wemapgl.dart' as WEMAP;
 
 import './data_models/running_data.dart';
 import 'package:flutter/widgets.dart';
-import 'models/record_model.dart';
 import 'pages/my_home_page.dart';
 import 'pages/progress.dart';
 
