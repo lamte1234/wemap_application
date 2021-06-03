@@ -37,6 +37,7 @@ class _ProgressState extends State<Progress> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Center(child: Text("History"))),
       body: SafeArea(
         child: Container(
           child: ListView.builder(
@@ -50,12 +51,11 @@ class _ProgressState extends State<Progress> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 child: Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    border: Border(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        border: Border(
                       bottom: BorderSide(width: 1.0, color: Colors.black12),
-                    )
-                  ),
+                    )),
                     height: 75,
                     child: Column(
                       children: [
@@ -65,14 +65,17 @@ class _ProgressState extends State<Progress> {
                           child: Text(
                             "${item.distance.toStringAsFixed(2)} km",
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold,),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         Row(
                           children: [
                             Text("$date $time"),
                             SizedBox(width: 10),
-                            Text("${item.totalTime.toStringAsFixed(2)} seconds"),
+                            Text(
+                                "${item.totalTime.toStringAsFixed(2)} seconds"),
                             SizedBox(width: 10),
                             Text("${item.speed.toStringAsFixed(2)} km/h"),
                           ],
