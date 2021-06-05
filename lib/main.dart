@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wemap_application/database/history_database.dart';
+import 'package:wemap_application/pages/result_page.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
 
 import './data_models/running_data.dart';
@@ -19,26 +20,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider(create: (context) => RunningData(), child: MaterialApp(
       title: 'Wemap Tracking',
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => DataProvider(),
+        '/': (context) => MyHomePage(title: 'Tracking Demo'),
         '/progress': (context) => Progress(),
+        '/result': (context) => ResultPage()
       },
-    );
+    ),);
   }
 }
 
-class DataProvider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<RunningData>(
-      create: (context) => RunningData(),
-      child: MyHomePage(title: 'Tracking Demo'),
-    );
-  }
-}

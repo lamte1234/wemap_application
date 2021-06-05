@@ -46,6 +46,7 @@ class _ProgressState extends State<Progress> {
             itemBuilder: (context, index) {
               var item = _listRecords[index];
               var mapDateTime = item.dateTime.split(' ');
+              double caloriesConsumed = item.distance * 100 / 1.6;
               String date = mapDateTime[0].split('-').reversed.join('/');
               String time = mapDateTime[1].split('.')[0];
               return Padding(
@@ -63,7 +64,7 @@ class _ProgressState extends State<Progress> {
                           height: 45,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "${item.distance.toStringAsFixed(2)} km",
+                            "${item.distance.toStringAsFixed(2)}km / ${caloriesConsumed.toStringAsFixed(2)} calo",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

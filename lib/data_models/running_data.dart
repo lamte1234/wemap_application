@@ -10,6 +10,10 @@ class RunningData with ChangeNotifier {
   double get distance => this._distance;
   double get totalTime => this._totalTime;
 
+  double caloriesConsumed() {
+    return _distance * 100 / 1.6;
+  }
+
   changeDistance(double newValue) {
     _distance = newValue;
     notifyListeners();

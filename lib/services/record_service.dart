@@ -23,14 +23,12 @@ class RecordService {
     SELECT max(id) as last_insert_id FROM $TABLE_NAME
   ''';
 
-  static int lastInsertId = -1;
+  static int lastInsertId;
 
   Future<void> getLastInsertRowId() async {
-    if (lastInsertId != -1) {
-      final Database db = HistoryDatabase.instance.database;
-      var queryResult = await db.rawQuery(LAST_INSERT_ID_QUERY);
-      lastInsertId = queryResult.first["last_insert_id"];
-    }
+    final Database db = HistoryDatabase.instance.database;
+    var queryResult = await db.rawQuery(LAST_INSERT_ID_QUERY);
+    lastInsertId = queryResult.first["last_insert_id"] ?? -1;
   }
 
   Future<void> insertRecord(record) async {

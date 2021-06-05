@@ -2,6 +2,7 @@ import 'dart:math' show cos, sqrt, asin;
 
 import 'package:flutter/material.dart';
 import 'package:wemap_application/models/record_model.dart';
+import 'package:wemap_application/pages/result_page.dart';
 import 'package:wemap_application/services/record_service.dart';
 import 'package:wemapgl/wemapgl.dart' as WEMAP;
 import 'dart:async';
@@ -121,8 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _stopRunning(RunningData provider) async {
-    double newTotalDistance =
-        provider.distance;
+    double newTotalDistance = provider.distance;
     provider.stopTimer();
     double newTotalTime = provider.totalTime;
     await _recordService.getLastInsertRowId();
@@ -142,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _totalDistance = 0;
       _line = [];
     });
-    Navigator.popAndPushNamed(context, '/progress');
+    Navigator.popAndPushNamed(context, "/result");
     if (_locationSubscription != null) {
       _locationSubscription.cancel();
     }
